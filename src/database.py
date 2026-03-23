@@ -1,5 +1,8 @@
 import sqlite3 
 from config import DB_NAME
+from config import STOCKS
+from fetcher import fetch_price_history
+from fetcher import fetch_earnings_dates
 
 def create_stocks_table():
     with sqlite3.connect(DB_NAME) as conn:
@@ -52,3 +55,23 @@ def create_tables():
     create_earnings_events_table()
     create_price_snapshots_table()
     
+def insert_stock(stock):
+    with sqlite3.connect(DB_NAME) as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO stocks (ticker, company_name, sector)
+            VALUES (?, ?, ?)
+        """, stock)
+        conn.commit()
+
+def insert_all_stocks():
+    with sqlite3.connect(DB_NAME) as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        cursor = conn.cursor()
+        for stock in STOCKS:
+            cursor.execute("""
+                INSERT INTO stocks (ticker, company_name, sector)
+                VALUES (?, ?, ?)
+            """, stock)
+        conn.commit()
